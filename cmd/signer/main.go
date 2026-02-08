@@ -8,6 +8,7 @@ import (
 	"syscall"
 
 	"github.com/caesar-terminal/caesar/internal/config"
+	"github.com/caesar-terminal/caesar/internal/signer"
 )
 
 func main() {
@@ -19,9 +20,33 @@ func main() {
 
 	fmt.Printf("Caesar Signer starting (env=%s, socket=%s)\n", cfg.Env, cfg.Signer.SocketPath)
 
+	srv, err := signer.New(cfg.Signer.SocketPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to create signer server: %v\n", err)
+		os.Exit(1)
+	}
+
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 
-	<-ctx.Done()
-	fmt.Println("Signer shutting down")
+	// Run gRPC server in a goroutine so we can wait for shutdown signals.
+	errCh := make(chan error, 1)
+	go func() {
+		errCh <- srv.Serve()
+	}()
+
+	fmt.Println("Signer ready — listening on UDS")
+
+	select {
+	case <-ctx.Done():
+		fmt.Println("Signer shutting down gracefully...")
+		srv.GracefulStop()
+	case err := <-errCh:
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "signer server error: %v\n", err)
+			os.Exit(1)
+		}
+	}
+
+	fmt.Println("Signer stopped")
 }
