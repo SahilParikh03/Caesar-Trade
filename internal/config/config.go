@@ -9,10 +9,11 @@ import (
 
 // Config holds all application configuration.
 type Config struct {
-	Env    string `mapstructure:"env"`
-	Signer SignerConfig
-	DB     DBConfig
-	Redis  RedisConfig
+	Env                string `mapstructure:"env"`
+	LocalStackEndpoint string `mapstructure:"localstack_endpoint"`
+	Signer             SignerConfig
+	DB                 DBConfig
+	Redis              RedisConfig
 }
 
 // SignerConfig holds signer-specific settings.
@@ -77,6 +78,7 @@ func Load() (*Config, error) {
 	cfg := &Config{}
 
 	cfg.Env = v.GetString("env")
+	cfg.LocalStackEndpoint = v.GetString("localstack_endpoint")
 
 	cfg.Signer = SignerConfig{
 		SocketPath:    v.GetString("signer.socket_path"),

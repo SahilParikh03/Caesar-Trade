@@ -10,7 +10,9 @@
       "Bash(choco:*)",
       "Bash(scoop:*)",
       "Bash(go mod tidy:*)",
-      "Bash(go build:*)"
+      "Bash(go build:*)",
+      "Bash(go get:*)",
+      "Bash(go test:*)"
     ]
   }
 }
