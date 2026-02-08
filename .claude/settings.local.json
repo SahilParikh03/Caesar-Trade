@@ -12,7 +12,9 @@
       "Bash(go mod tidy:*)",
       "Bash(go build:*)",
       "Bash(go get:*)",
-      "Bash(go test:*)"
+      "Bash(go test:*)",
+      "Bash(go doc:*)",
+      "Bash(go vet:*)"
     ]
   }
 }
